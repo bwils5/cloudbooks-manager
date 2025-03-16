@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.future import select
 from sqlalchemy import update, delete, insert
-from app.database import engine
+from app.database import engine, init_db
 from app.models import books, activity_log, users
 from app.auth import authenticate_user, get_current_user, hash_password, is_admin
 import shutil
@@ -14,6 +14,11 @@ app = FastAPI()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Initialize the database on startup
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 #  Logging activity
 def log_activity(action: str, detail: str):
@@ -85,7 +90,7 @@ async def create_book(book: Book, current_user: dict = Depends(is_admin)):
         result = conn.execute(query)
         conn.commit()
     log_activity("Created book", f"Title: {book.title}")
-    return {"id": result.lastrowid, **book.dict()}
+    return {"message": "Book created successfully"}
 
 @app.get("/books/", response_model=List[dict])
 async def read_books(
@@ -155,3 +160,4 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
     return {"access_token": user["username"], "token_type": "bearer"}
+

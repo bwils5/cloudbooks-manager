@@ -31,5 +31,4 @@ users = Table(
     Column("role", String(50), nullable=False, default="user"),
 )
 
-# Ensure tables are created
-# metadata.create_all()
+# Ensure tables are created when the database initializes
