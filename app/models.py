@@ -1,5 +1,5 @@
 from sqlalchemy import Table, Column, Integer, String, DateTime, func
-from app.database import metadata  # Import metadata here
+from app.database import metadata
 
 # Define the books table
 books = Table(
@@ -8,7 +8,7 @@ books = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(255), nullable=False),
     Column("author", String(255), nullable=False),
-    Column("description", String(2000)),
+    Column("description", String(2000), nullable=True),
 )
 
 # Define the activity log table
@@ -28,5 +28,8 @@ users = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("username", String(255), unique=True, nullable=False),
     Column("hashed_password", String(255), nullable=False),
-    Column("role", String(50), nullable=False, default="user"),  # Default role is "user"
+    Column("role", String(50), nullable=False, default="user"),
 )
+
+# Ensure tables are created
+metadata.create_all()
