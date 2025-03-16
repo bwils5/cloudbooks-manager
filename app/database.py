@@ -1,27 +1,29 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 import os
-from dotenv import load_dotenv
+import time
 
-# Load environment variables
-load_dotenv()
-
+# Load environment variable
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Ensure DATABASE_URL is set
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set in the environment variables.")
+# Create engine
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
-# Create database engine
-engine = create_engine(DATABASE_URL)
+# Create a session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create metadata instance
+# Metadata for table creation
 metadata = MetaData()
 
-# Ensure tables are created
+# Connection test to debug Render issue
+try:
+    with engine.connect() as conn:
+        print("✅ Connected to the database successfully!")
+except Exception as e:
+    print(f"❌ Failed to connect to the database: {e}")
+    time.sleep(60)  # Keeps the logs visible for debugging before Render restarts
+
+# Function to initialize DB (for migrations, etc.)
 def init_db():
-    metadata.create_all(bind=engine)  # Pass 'bind' explicitly
-
-init_db()
-
+    metadata.create_all(bind=engine)
 
