@@ -32,4 +32,4 @@ users = Table(
 )
 
 # Ensure tables are created
-metadata.create_all()
+# metadata.create_all()
